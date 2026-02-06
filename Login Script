@@ -1,0 +1,60 @@
+# Login script — loign form is webpage, script is connection
+
+<?php
+include 'db_connection.php';  // Including the other php file
+session_start();  // Built in function that starts a new session that stores data accross multiple pages of the website
+
+$conn = get_database_connection();  // Built in function that establishes a connection to the databse to the script can run queries later.
+// The result is stored in the variable $conn
+
+function get_user_by_username($conn, $username) {
+    $sql = "SELECT registerID, username, password FROM registerdetails WHERE username = ?"; // Prepared statement for secure SQL query
+    //  ? is a placeholder. Once the user has entered in theire username, the ? will change automatically
+    $stmt = $conn->prepare($sql);  // Prepares the SQL statement
+
+    if (!$stmt) {  // If the statement is not correct - kill the connection
+        die("Error preparing statement: " . $conn->error);
+    }
+    
+    $stmt->bind_param("s", $username);  // S represents string datatype for the username field and binds it to $stmt
+    $stmt->execute();  // Executes the function in full
+    $result = $stmt->get_result();  // Gets the result of the $stmt and stores it in $result
+    $stmt->close();  // Closes the statement
+
+    return ($result->num_rows === 1) ? $result->fetch_assoc() : null; // Check if user exists in database
+}
+
+function verify_password($password, $hashedPassword) {
+    return password_verify($password, $hashedPassword);  // Hashes the password for security
+}
+
+function start_user_session($row) {
+    $_SESSION['registerID'] = $row['registerID'];  // Sents data to global session array
+    $_SESSION['username'] = $row['username'];  // Sents data to global session array
+}
+
+function handle_login($conn) {
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {  // Only moves forward if the requested method is "POST" method not "GET"
+    // This ensures data is being sent via form submission
+    // $SERVER is a superglobal array in PHP and is always written in all capitals. 
+    // It contains information about the server environment and the current HTTP 
+        $username = $_POST["username"];
+        $password = $_POST["password"]; // DO NOT modify before password_verify()
+
+        $user = get_user_by_username($conn, $username);
+
+        if ($user && verify_password($password, $user['password'])) {
+            start_user_session($user);
+            header("Location: ../PHP_forms/dash_board.php");  // Landing page for when a user sucessfully logs in
+            exit();
+        } else {
+            echo "Invalid username or password";  // If no match or incorrect password - generic message for security
+        }
+    } else {
+        echo "Invalid request method";  // If the request method is not POST
+    }
+}
+
+handle_login($conn);  // Function trigger
+$conn->close();  // Closes the connection
+?>
