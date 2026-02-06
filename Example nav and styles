@@ -1,0 +1,306 @@
+# Example Nav bar and style
+
+    <nav>
+        <!--TOP ROW-->
+        <div class="top_row">
+ 
+            <!--HAMBURGER ICON-->
+            <div class = "hamburger">
+                <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+                <i class="fa fa-bars"></i></a>
+                <span></span>
+                <span></span>
+                <span></span>
+               
+            </div>
+ 
+            <!--COMPANY NAME-->
+            <div class = "nav_left">
+                <img src="/Images/PENGUIN_LOGO.svg" viewBox="0 0 24 24">
+                <path d="M12 2L2 12h3v8h5v-6h4v6h5v-8h3L12 2z"/>
+            </div>
+        </div>  
+ 
+           <!--BOTTOM ROW-->
+            <div class = "bottom_row">
+                <!--LOGIN BUTTON-->
+                <div class = "nav_right">
+                    <a href="/PHP_forms/login_form.PHP">Log in</a>
+                </div>
+ 
+                <!--BOTTOM ROW BUTTONS-->
+                <ul class="navbar">
+                    <li><a href="../PHP_scripts/more_information.php">About Us</a></li>
+                    <li><a href="../PHP_scripts/html_zoo.html#google_map_card">Find Us</a></li>
+                    <li><a href="../PHP_scripts/more_information.php#hotel">Hotel</a></li>            
+                </div>
+    </nav>
+
+
+STYLE:
+
+
+/* --------------------------------------------------
+   GLOBAL FONT SETTINGS
+-------------------------------------------------- */
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Make all nav elements inherit the body font */
+.bottom_row a,
+.nav_right a,
+.navbar a,
+.company_name,
+.hamburger_menu,
+.hamburger_menu a {
+    font-family: inherit !important;
+}
+
+/* Dyslexia-friendly font overrides */
+body.opendyslexic {
+    font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+body.lexend {
+    font-family: 'Lexend', sans-serif !important;
+}
+
+/* --------------------------------------------------
+   BOTTOM ROW ITEMS
+-------------------------------------------------- */
+
+.bottom_row {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    margin: 10px;
+    padding: 0;
+}
+
+.navbar {
+    overflow: hidden;
+    display: flex;
+    gap: 35px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    justify-content: center;
+    flex: 1;
+}
+
+.nav_right {
+    margin-left: auto;
+}
+
+.bottom_row li {
+    display: flex;
+    align-items: center;
+}
+
+.bottom_row a {
+    display: inline-block;
+    line-height: 1;
+    text-decoration: none;
+    color: var(--main-text-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+ul.navbar li a:hover,
+.nav_right a:hover,
+.hamburger a:hover i {
+    background-color: var(--main-bg-color);
+    color: #fff;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* --------------------------------------------------
+   TOP ROW ITEMS
+-------------------------------------------------- */
+
+.top_row {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    margin: 10px;
+    padding: 0;
+}
+
+.nav_left {
+    display: flex;
+    background: linear-gradient(0deg, rgba(25, 105, 54, 1) 0%, rgba(82, 122, 78, 1) 100%);
+    padding-top: 32px;
+    border: 2px solid var(--accent-color);
+    align-items: center;
+    flex: 1 1 30%;
+}
+
+.nav_left {
+    width: clamp(1.2rem, 3vw, 1.8rem);
+    height: clamp(1.2rem, 3vw, 1.8rem);
+    fill: var(--main-text-color);
+    margin-right: 0.625rem;
+}
+
+.nav_left {
+    max-width: 300px;
+    max-height: 300px;
+}
+
+.company_name {
+    color: var(--main-text-color);
+    font-size: clamp(0.5rem, 2vw, 1.25rem);
+    font-weight: bold;
+}
+
+.hamburger a {
+    color: var(--main-text-color);
+}
+
+.hamburger {
+    overflow: visible;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.hamburger a i {
+    padding: 10px;
+}
+
+.hamburger_menu {
+    display: none;
+    position: absolute;
+    top: 70px;
+    right: 10px;
+    background-color: var(--main-bg-color);
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 6px;
+    border-color: var(--alt-light-color);
+    flex-direction: column;
+    z-index: 9999;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.hamburger_menu li {
+    list-style: none;
+    margin: 10px 0;
+}
+
+.hamburger_menu li a {
+    color: var(--main-text-color);
+    text-decoration: none;
+}
+
+.hamburger_menu.show {
+    display: flex;
+}
+
+/* --------------------------------------------------
+   NAV + DIV
+-------------------------------------------------- */
+
+nav {
+    background-color: var(--main-dark-color);
+    padding: 22px 0;
+    position: sticky;
+    top: 0;
+    overflow: visible;
+    z-index: 1000;
+}
+
+div {
+    margin: 5px 10px 15px 20px;
+}
+
+/* --------------------------------------------------
+   MEDIA QUERIES
+-------------------------------------------------- */
+
+@media (max-width: 768px) {
+    .nav_left .company_name {
+        font-size: 0.95rem;
+    }
+
+    ul.navbar {
+        gap: 0.75rem;
+    }
+
+    ul.navbar li a,
+    .nav_right a {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.5rem;
+    }
+
+    .nav_right {
+        gap: 0.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav_left {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .nav_left svg {
+        margin-right: 0;
+        margin-bottom: 0.25rem;
+    }
+
+    .company_name {
+        font-size: 1rem;
+    }
+}
+
+
+.high-contrast,
+.high-contrast * {
+  background-color: black !important;
+  color: yellow !important;
+}
+
+/* TEXT LARGE SIZE */
+.large-font h1,
+.large-font h2,
+.large-font h3,
+.large-font h4,
+.large-font h5,
+.large-font h6,
+.large-font p{
+    font-size: calc(1.2em + 1vw) !important;
+}
+
+.large-font .page_title { 
+    font-size: 1.3rem !important ;
+}
+
+/* Increase the base font size for the whole page */
+.large-font {
+    font-size: 1.25em; /* or 1.3em, 1.4em, etc. */
+}
+
+/* Force all children to scale with the base size */
+.large-font * {
+    font-size: inherit !important;
+    line-height: 1.4 !important; /* prevents text crowding */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+ 
