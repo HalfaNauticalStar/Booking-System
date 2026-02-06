@@ -1,0 +1,19 @@
+// DATABASE CONNECTION
+
+<?php
+function get_database_connection() {
+    $servername = "ccsw-mysql1.mysql.database.azure.com";  // Link to phpMyAdmin database
+    $username = "0020050188_User1";  // Username
+    $password = "8VE8hTXLUjnr";  // Password
+    $database = "0020050188_DB1";  // Database name
+    $port = 3306;  // Must be the same as the "connect" tab in the database extension
+
+    $conn = new mysqli($servername, $username, $password, $database, $port);
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    return $conn; // Return the connection object
+}
+?>
