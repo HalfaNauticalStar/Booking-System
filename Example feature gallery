@@ -1,0 +1,49 @@
+# Example feature gallery
+
+    <!--FEATURE GALLERY INFORMATION-->  
+    <section class="feature-gallery" aria-labbelledby="features-title">
+        <div class = "feature-container">
+            <h2 class="features-title" style="color: var(--main-text-color)">Whats on at Ridget Zoo?</h2>
+ 
+            <!--CARDS-->
+            <div class = "feature-grid">
+                <article class = "card">
+                    <img src = "/Images/giraffe_image_card.jpg" aria-hidden="true" aria-labelledby = "Various animals in the zoo">
+                    <h3>Available Animals</h3>
+                    <p>A wide variety, from lizards to lions</p>
+                    <a href="/PHP_scripts/more_information.php" class="card-button">Explore</a>
+                </article>
+ 
+                <article class = "card">
+                    <img src = "/Images/teacher_image_card.jpg" aria-hidden = "true" aria-labelledby="Educational visits">
+                    <h3>Educational Visits</h3>
+                    <p>5-16+ year old events and talks</p>
+                    <a href="/PHP_scripts/more_information.php#educational_visits" class="card-button">Explore</a>
+                </article>
+ 
+                <article class = "card">
+                    <img src = "/Images/zoo_shop_image.jpg" aria-hidden = "true" aria-labelledby="Loyalty scheme information">
+                    <h3>Loyalty Reward Scheme</h3>
+                    <p>Earn points and discounts in our shops and eateries</p>
+                    <a href="/PHP_scripts/more_information.php#loyalty" class="card-button">Explore</a>
+                </article>
+ 
+                 <article class = "card">
+                    <img src = "/Images/hotel_image_card.jpg" aria-hidden = "true" aria-labelledby="Hotel accomodation">
+                    <h3>RZA Hotel</h3>
+                    <p>Where adventure sleeps next door</p>
+                    <a href="/PHP_scripts/more_information.php#hotel" class="card-button">Explore</a>
+                </article>
+
+                <article class = "large_card" id="google_map_card"> <!--Google_map_card ID placed here to ensure it scrolls to the TOP of the maps API-->
+                    <img src="/Images/family_at_zoo.jpg" aria-hidden="true" aria-labelledby="Family at the zoo">
+                    <h3>Log in or Sign up to Book tickets for our Zoo and Hotel!</h3>
+                </article>
+
+                <article class = "map_card">
+                    <h3>Where you can find us</h3>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2388.5484593376063!2d-2.8860641221881145!3d53.22594407225466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487add9d7c4b2fe7%3A0x1458b55b7024e327!2sChester%20Zoo!5e0!3m2!1sen!2suk!4v1769164744853!5m2!1sen!2suk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </article>
+            </div>
+        </div>
+    </section>
