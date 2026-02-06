@@ -1,0 +1,39 @@
+# Zoo database setup
+
+User details
+— User ID
+— Username
+— Password
+— First Name
+— Surname
+— email
+— Mobile Number
+— Date of Birth
+~ Date recorded
+
+Visit date
+— Visit ID
+— Visit Date
+— Start Time
+— End Time
+— Capacity
+
+Finished Booking
+— Booking ID
+— User ID
+— Booking Status
+~ Created on
+
+Ticket Booking Items
+— Booking Item ID
+— Booking ID
+— Ticket Type ID
+— Quantity
+— Unit Price
+
+Ticket Types
+— Ticket Type ID
+— Ticket Name
+— Ticket Price
+— Age Min
+— Age Max
