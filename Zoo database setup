@@ -18,7 +18,7 @@ Visit date  // Good
 — End Time
 — Capacity
 
-Bookings  // Good ~ THIS IS MAIN TABLE
+Zoo Bookings  // Good ~ THIS IS MAIN TABLE
 — Booking ID
 — User ID
 — Visit Date ID
