@@ -1,0 +1,9 @@
+# verify Check
+
+<?php
+session_start();
+if (!isset($_SESSION['registerID'])){
+    header(header: "Location ..\PHP_forms\login_form.PHP");
+    exit();
+}
+?>
