@@ -16,7 +16,7 @@
  
             <!--COMPANY NAME-->
             <div class = "nav_left">
-                <img src="/Images/PENGUIN_LOGO.svg" viewBox="0 0 24 24">
+                <img src="LOGO.svg" viewBox="0 0 24 24">
                 <path d="M12 2L2 12h3v8h5v-6h4v6h5v-8h3L12 2z"/>
             </div>
         </div>  
