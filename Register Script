@@ -1,0 +1,127 @@
+#  Register script
+
+<?php
+include 'db_connection.php';  // Including the other php file
+session_start();  // Built in function that starts a new session that stores data accross multiple pages of the website
+$conn = get_database_connection(); // Built in function that establishes a connection to the databse to the script can run queries later.
+// The result is stored in the variable $conn
+$userID = null;  // Process form data
+function read_form_data(): array {
+    $username     = $_POST["username"];
+    $password     = password_hash(password: $_POST["password"], algo: PASSWORD_DEFAULT);
+    // Retrieve the 'password' field value from the form, hash it using PHP's built in hashing algorithm and store it in $password variable
+    //  Hashing is a one way encryption and is permenant - the password cannot be unhashed
+    // PASSWORD_DEFAULT ensures the best hashing algorithm is used at runtime - when the program is live and running
+    $firstName    = $_POST["firstName"];
+    $surname      = $_POST["surname"];
+    $email        = $_POST["email"];
+    $mobileNumber = $_POST["mobileNumber"];
+    $dateOfBirth = $_POST["dateOfBirth"];
+    // These retrieve the field values from the form and store them in the corresponding variable
+
+    return compact('username', 'password', 'firstName', 'surname', 'email', 'mobileNumber', 'dateOfBirth');
+}
+
+function check_username(mysqli $conn, string $username) {
+    $CheckUser = "SELECT username FROM registerdetails WHERE username = ?"; // Selects the username from the php myAdmin database where the username is not yet entered by the user
+    //  ? is a placeholder. Once the user has entered in theire username, the ? will change automatically
+    //  This is important as it checks for duplicated before allowing registration and makes it safe against SQL injection because PHP wil handle the value securley later when we "bind" it
+    $stmt = $conn->prepare($CheckUser);
+    $stmt->bind_param("s", $username);  // "s" represents the datatype which is string and the arrow -> binds the function called $stmt
+    //  This means were binding the username to the function as a string datatype
+    $stmt->execute();  // Executes the function in full. combines lines 28 - 32 into one function and runs it all
+    $result = $stmt->get_result();  // Gets the result of the $stmt and stores it in $result
+
+    return $result;
+}
+
+function handle_duplicate_and_redirect(string $username): void {
+    $_SESSION['error message'] = "Username '$username' already exists. Please choose another.";  // If the username already exists, it redirects the user back to the registration page
+    header("Location: /PHP_forms/register_form.php");  // Re-direction to the registration page
+    exit;
+}
+
+function prepare_insert_statement(mysqli $conn): ?mysqli_stmt {
+    $sql = "INSERT INTO registerdetails (username, password, firstName, surname, email, dateOfBirth, mobileNumber) VALUES (?, ?, ?, ?, ?, ?, ?)";  // The ? are placholders
+    // Inserts the field values into the registerdetails table in the database
+    $stmt = $conn->prepare($sql);
+    return $stmt ?: null;
+}
+
+function execute_insert_and_redirect(mysqli $conn, mysqli_stmt $stmt, array $data): ?int {
+    $stmt->bind_param(
+        "sssssss",  // Binds all the fields to string datatype
+        $data['username'],
+        $data['password'],
+        $data['firstName'],
+        $data['surname'],
+        $data['email'],
+        $data['dateOfBirth'],
+        $data['mobileNumber']
+    );
+
+    if ($stmt->execute()) {
+        $userID = $conn->insert_id;
+        $_SESSION['registerID'] = $userID; // Stores the user ID in SESSION to use later
+        echo "Registration successful! User ID: $userID";
+        $_SESSION['username'] = $data['username']; // Set the username in the SESSION
+        header("Location: /PHP_forms/dash_board.php");  // If the user successfully logs in, they are re-directed to the dashboard
+        exit;   
+        } else {
+            handle_register_execute_error($stmt);  // Function trigger to function below - If there is an error registering new user
+        }
+}
+function handle_register_execute_error(mysqli_stmt $stmt): void {
+    $_SESSION['error_message'] = "Error registering user: " . $stmt->error;  // Error registering new user
+    header("Location: /PHP_forms/register_form.php");  // Re-directs back to register form
+    exit;
+}
+
+function handle_prepare_error(mysqli $conn): void {
+    $_SESSION['error_message'] = "Error preparing statement: " . $conn->error;  // Error preparing SQL statement
+    header("Location: /PHP_forms/register_form.php");  // Re-directs back to register form
+    exit;
+}
+if ($_SERVER["REQUEST_METHOD"] == "POST") {  // Only moves forward if the requested method is "POST" method not "GET"
+    // This ensures data is being sent via form submission
+    // $SERVER is a superglobal array in PHP and is always written in all capitals. It contains information about the server environment and the current HTTP request
+
+    // These retrieve the field values from the form and store them in the corresponding variable
+    $data = read_form_data();
+    $username     = $data['username'];
+    $password     = $data['password'];
+    $firstName    = $data['firstName'];
+    $surname      = $data['surname'];
+    $email        = $data['email'];
+    $mobileNumber = $data['mobileNumber'];
+    $dateOfBirth  = $data['dateOfBirth'];
+    $username     = $data['username']; // keep duplication
+
+    // Selects the username from the php myAdmin database where the username is not yet entered by the user
+    //  ? is a placeholder
+    $result = check_username($conn, $username);
+
+    if ($result->num_rows > 0) {  // If there is already a username registered to that name, it re-directs the user by calling this function
+        handle_duplicate_and_redirect($username);  // Function to get the user to choose another username
+
+    } else {
+        $stmt = prepare_insert_statement($conn);  // Prepares SQL statement
+    }
+
+    if ($stmt) {
+        execute_insert_and_redirect($conn, $stmt, [
+            'username'     => $username,
+            'password'     => $password,
+            'firstName'    => $firstName,
+            'surname'      => $surname,
+            'email'        => $email,
+            'dateOfBirth'          => $dateOfBirth,
+            'mobileNumber' => $mobileNumber
+        ]);
+    } else {
+        handle_prepare_error($conn);  // Function trigger - If there is an error preparing the statement
+    }
+}
+
+$conn->close();  // Closes the connection
+?>
