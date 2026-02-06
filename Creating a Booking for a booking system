@@ -1,0 +1,245 @@
+#  Create a booking for a booking system
+
+<?php
+
+declare(strict_types=1);
+
+session_start();  // Starts the session
+
+require_once __DIR__ . "/../PHP_scripts/db_connection.php";  // Establishes a connection to the database
+require_once __DIR__ . "/../PHP_scripts/verify_check.php";  // verifies that the user is logged in
+require_once __DIR__ . "/../PHP_scripts/error_message.php";  // Handles error messaging
+
+handleRequest();
+
+function handleRequest(): void
+{
+    requireLogin();
+    requirePostRequest();
+
+    $conn = get_database_connection();
+    $registerID = getUserIDFromSession(); // Fetch the users ID number
+    $visitDateID = getSlotIDFromPost($_POST);  // Fetch the users visit date ID number
+    $items = buildTicketItemsFromPost($_POST);
+
+    if ($visitDateID <= 0) {
+        setFlashAndRedirect("Please select a visit slot", "err", "../PHP_scripts/booking_page.php");
+    }
+
+    if (count($items) === 0) {
+        setFlashAndRedirect("Please choose at least 1 ticket", "err", "../PHP_scripts/booking_page.php");
+    }
+
+    try {
+        $bookingID = createBookingTransactionally($conn, $registerID, $visitDateID, $items);
+        setFlashAndRedirect("Booking created! Your booking ID is $bookingID.", "ok", "../PHP_scripts/booking_page.php");
+    } catch (Exception $e) {
+        $conn->rollback();
+        setFlashAndRedirect($e->getMessage(), "err", "../PHP_scripts/booking_page.php");
+    }
+}
+
+function requireLogin(): void {}
+
+function requirePostRequest(): void
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: ../PHP_scripts/booking_page.php');
+        exit;
+    }
+}
+
+function getUserIDFromSession(): int
+{
+    return (int)$_SESSION['registerID'];
+}
+
+function getSlotIDFromPost(array $post): int
+{
+    return isset($post['visitDateID']) ? (int)$post['visitDateID'] : 0;
+}
+
+function buildTicketItemsFromPost(array $post): array
+{
+    // Set $qtyMap to the value of $post['qty'] if it exists and isn't null
+    // Otherwise return the empty array
+    $qtyMap = $post['qty'] ?? [];
+    // If $qtyMap isnt an array, return an empty array
+    if (!is_array($qtyMap)) return [];
+
+    $items = [];
+
+    // Each loop processed one ticket type
+    // It looks at the array called $qtyMap
+    // For each item in the array:
+    // Put the key into $ticketTypeID 
+    // AND
+    // Put the value into $qty
+
+    //$qtyMap is an array sent from the form
+    // It contains ticket IDs and the quantities chosen
+
+    // OVERALL MEANING:
+    //For each item in the $qtyMap array, store the key as $ticketTypeID and the values as $qty
+
+    foreach ($qtyMap as $ticketTypeID => $qty) {
+        $ticketTypeID = (int)$ticketTypeID;
+        $qty = (int)$qty;
+
+        if ($ticketTypeID > 0 && $qty > 0) {
+            $items[] = [
+                'ticketTypeID' => $ticketTypeID,
+                'qty' => $qty
+            ];
+        }
+    }  // Closes the for each loop
+    return $items;
+}
+
+function createBookingTransactionally(mysqli $conn, int $registerID, int $visitDateID, array $items): int
+{
+    $conn->begin_transaction();
+
+    // Fetch slot
+    $slot = lockAndFetchSlot($conn, $visitDateID);
+
+    if ($slot === null) {
+        throw new Exception("That slot is not available.");
+    }
+
+    $totalRequested = calculateTotalRequested($items);
+    $alreadyBooked = getAlreadyBookedCount($conn, $visitDateID);
+
+    // capacity is STRING in your DB, so force int
+    $remaining = (int)$slot['capacity'] - $alreadyBooked;
+
+    if ($totalRequested > $remaining) {
+        throw new Exception("Not enough capacity left. Remaining: $remaining");
+    }
+
+    // Insert booking header
+    $bookingID = insertBookingHeader($conn, $registerID, $visitDateID);
+
+    // Insert ticket items
+    insertBookingItems($conn, $bookingID, $items);
+
+    $conn->commit();
+    return $bookingID;
+}
+
+function lockAndFetchSlot(mysqli $conn, int $visitDateID): ?array
+{
+    $stmt = $conn->prepare("
+        SELECT visitDateID, capacity
+        FROM visitdate
+        WHERE visitDateID = ?
+        AND visitDate >= CURDATE()
+        FOR UPDATE
+    ");
+
+    $stmt->bind_param("i", $visitDateID);
+    $stmt->execute();
+    $stmt->bind_result($id, $capacity);
+
+    if ($stmt->fetch()) {
+        $stmt->close();
+        return [
+            "visitDateID" => (int)$id,
+            "capacity" => (int)$capacity
+        ];
+    }
+
+    $stmt->close();
+    return null;
+}
+
+function calculateTotalRequested(array $items): int
+{
+    $total = 0;
+    foreach ($items as $item) {
+        $total += (int)$item['qty'];
+    }
+    return $total;
+}
+
+function getAlreadyBookedCount(mysqli $conn, int $visitDateID): int
+{
+    $stmt = $conn->prepare("
+        SELECT COALESCE(SUM(quantity), 0)
+        FROM zooticketbooking
+        WHERE visitDateID = ?
+        AND bookingStatus IN ('Pending', 'Cancel', 'Complete')
+    ");
+
+    $stmt->bind_param("i", $visitDateID);
+    $stmt->execute();
+    $stmt->bind_result($booked);
+    $stmt->fetch();
+    $stmt->close();
+
+    return (int)$booked;
+}
+
+function insertBookingHeader(mysqli $conn, int $registerID, int $visitDateID): int
+{
+    $stmt = $conn->prepare("
+        INSERT INTO zooticketbooking (registerID, visitDateID, bookingStatus)
+        VALUES (?, ?, 'Pending')
+    ");
+
+    $stmt->bind_param("ii", $registerID, $visitDateID);
+    $stmt->execute();
+    $stmt->close();
+
+    return (int)$conn->insert_id;
+}
+
+function insertBookingItems(mysqli $conn, int $zooTicketID, array $items): void
+{
+    $priceStmt = $conn->prepare("
+        SELECT ticketPrice
+        FROM tickettype
+        WHERE ticketTypeID = ?
+    ");
+
+    $itemStmt = $conn->prepare("
+        INSERT INTO bookingline (zooTicketID, ticketTypeID, quantity, ticketPriceID)
+        VALUES (?, ?, ?, ?)
+    ");
+
+    foreach ($items as $item) {
+        $ticketTypeID = (int)$item['ticketTypeID'];
+
+        // Get price
+        $price = fetchTicketPrice($priceStmt, $ticketTypeID);
+
+        $itemStmt->bind_param(
+            "iiid",
+            $zooTicketID,
+            $ticketTypeID,
+            $item['qty'],
+            $price
+        );
+
+        $itemStmt->execute();
+    }
+
+    $priceStmt->close();
+    $itemStmt->close();
+}
+
+function fetchTicketPrice(mysqli_stmt $stmt, int $ticketTypeID): float
+{
+    $stmt->bind_param("i", $ticketTypeID);
+    $stmt->execute();
+    $stmt->bind_result($ticketPrice);
+
+    if (!$stmt->fetch()) {
+        throw new Exception("Invalid ticket type selected.");
+    }
+
+    $stmt->free_result();
+    return (float)$ticketPrice;
+}
+
+?>
