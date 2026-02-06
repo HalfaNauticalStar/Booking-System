@@ -1,0 +1,121 @@
+High contrast:
+
+const contrastToggle = document.getElementById("contrastToggle");
+
+contrastToggle.addEventListener("click", function () {
+    document.body.classList.toggle("high-contrast");
+
+    const isHighContrast = document.body.classList.contains("high-contrast");
+    localStorage.setItem("highContrastEnabled", isHighContrast);
+
+    this.setAttribute("aria-pressed", isHighContrast);
+});
+
+Global High Contrast:
+
+const savedContrast = localStorage.getItem("highContrastEnabled");
+
+if (savedContrast === "true") {
+    document.body.classList.add("high-contrast");
+
+    // If the toggle button exists on this page, update its state
+    const btn = document.getElementById("contrastToggle");
+    if (btn) {
+        btn.setAttribute("aria-pressed", "true");
+    }
+}
+
+Large font:
+
+const fontToggle = document.getElementById("fontChanger");
+
+fontToggle.addEventListener("click", function () {
+    document.body.classList.toggle("large-font");
+
+    const isLargeFont = document.body.classList.contains("large-font");
+    localStorage.setItem("largeFontEnabled", isLargeFont);
+
+    this.setAttribute("aria-pressed", isLargeFont);
+});
+
+Global Large Font:
+
+// Check saved preference for large font
+const savedLargeFont = localStorage.getItem("largeFontEnabled");
+
+if (savedLargeFont === "true") {
+    document.body.classList.add("large-font");
+
+    // If the toggle button exists on this page, update its state
+    const btn = document.getElementById("fontChanger");
+    if (btn) {
+        btn.setAttribute("aria-pressed", "true");
+    }
+}
+
+
+Hamburger Menu:
+
+function myFunction() {
+    const menu = document.querySelector('.hamburger_menu');
+    menu.classList.toggle('show'); // Toggle visibility
+}
+
+Accessibility toggles:
+
+// HIGH CONTRAST TOGGLE
+const contrastToggle = document.getElementById("contrastToggle");
+
+if (contrastToggle) {
+    contrastToggle.addEventListener("click", function () {
+        document.body.classList.toggle("high-contrast");
+
+        const isHighContrast = document.body.classList.contains("high-contrast");
+        localStorage.setItem("highContrastEnabled", isHighContrast);
+
+        this.setAttribute("aria-pressed", isHighContrast);
+    });
+}
+
+// LARGE FONT TOGGLE
+const fontToggle = document.getElementById("fontChanger");
+
+if (fontToggle) {
+    fontToggle.addEventListener("click", function () {
+        document.body.classList.toggle("large-font");
+
+        const isLargeFont = document.body.classList.contains("large-font");
+        localStorage.setItem("largeFontEnabled", isLargeFont);
+
+        this.setAttribute("aria-pressed", isLargeFont);
+    });
+}
+
+Global accessibility:
+
+// Restore HIGH CONTRAST
+const savedContrast = localStorage.getItem("highContrastEnabled");
+
+if (savedContrast === "true") {
+    document.body.classList.add("high-contrast");
+
+    const contrastBtn = document.getElementById("contrastToggle");
+    if (contrastBtn) {
+        contrastBtn.setAttribute("aria-pressed", "true");
+    }
+}
+
+// Restore LARGE FONT
+const savedLargeFont = localStorage.getItem("largeFontEnabled");
+
+if (savedLargeFont === "true") {
+    document.body.classList.add("large-font");
+
+    const fontBtn = document.getElementById("fontChanger");
+    if (fontBtn) {
+        fontBtn.setAttribute("aria-pressed", "true");
+    }
+}
+
+
+
