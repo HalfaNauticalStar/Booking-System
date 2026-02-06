@@ -1,0 +1,124 @@
+Auto carousel:
+
+window.addEventListener('load', () => {
+  const slides = Array.from(document.getElementsByClassName('carousel-item'));
+  if (!slides.length) return;
+
+  const addActive = (el) => el.classList.add('active');
+  const removeActive = (el) => el.classList.remove('active');
+
+  let current = 0;
+  setInterval(() => {
+    removeActive(slides[current]);
+    current = (current + 1) % slides.length;
+    addActive(slides[current]);
+  }, 2000); // 2 seconds per slide
+});
+
+FAQ page:
+document.addEventListener('DOMContentLoaded', function() {
+  const faqItems = document.querySelectorAll('.box_item');
+  
+  faqItems.forEach(item => {
+    const question = item.querySelector('.ask_question');
+    
+    question.addEventListener('click', () => {
+      const isActive = item.classList.contains('active');
+      
+      // Close all items
+      faqItems.forEach(faqItem => {
+        faqItem.classList.remove('active');
+      });
+      
+      // If the clicked item wasn't active, make it active
+      if (!isActive) {
+        item.classList.add('active');
+      }
+    });
+  });
+});
+
+Booking js:
+
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("ticket_form");
+  if (!form) return;
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const name = document.getElementById("first_name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const adultQty = parseInt(document.getElementById("adult_quantity").value, 10) || 0;
+    const childQty = parseInt(document.getElementById("child_quantity").value, 10) || 0;
+    const visitDate = document.getElementById("visit_date").value;
+
+    if (!name || !surname) {
+      alert("Please enter your first name and surname.");
+      return;
+    }
+    if (adultQty < 0 || childQty < 0) {
+      alert("Quantities must be 0 or greater.");
+      return;
+    }
+    if (!visitDate) {
+      alert("Please select a visit date.");
+      return;
+    }
+
+    const ticketId = "T" + Math.floor(Math.random() * 10000);
+
+    alert(
+      "Ticket " + ticketId + " has been booked successfully.\n" +
+      "Name: " + name + " " + surname + "\n" +
+      "Adult tickets: " + adultQty + "\n" +
+      "Child tickets: " + childQty + "\n" +
+      "Visit date: " + visitDate
+    );
+
+    form.reset();
+  });
+
+  // Optional: prevent booking past dates
+  const visitDateInput = document.getElementById("visit_date");
+  if (visitDateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    visitDateInput.setAttribute("min", today);
+  }
+});
+
+DOB validation:
+
+const dob_input = document.getElementById("dateOfBirth");
+// Get the date of birth input element from the page
+
+const today = new Date().toISOString().split("T")[0];
+dob_input.max = today;
+// Work out todays date and set it as the maximum allowed date
+
+const form = document.querySelector("form");
+// Find the form on the page
+
+form.addEventListener("submit", function(event) {
+// Add a "submit" event listener to the form
+    const dob_value = dob_input.value;
+    // Get the value the user entered into the dob entry field
+    const dob_date = new Date(dob_value);
+    // Turn that value (a string) into a Date object
+    const now = new Date();
+    // Get todays date again
+    let age = now.getFullYear() - dob_date.getFullYear();
+    // Start by calculating age using the year difference
+    const month_difference = now.getMonth() - dob_date.getMonth();
+    // Work out the difference in months
+    if (month_difference < 0 ||
+        (month_difference === 0 && now.getDate() < dob_date.getDate())) {
+        // If their birthday hasnt happened yet this year, subtract 1 from age
+        age--;  // Subtract 1 from age
+    }
+    if (age < 18) {
+        // If the user is younger than 18, stop the form and show a message
+        event.preventDefault();  // Stops the form from submitting to the server
+        alert("You must be at least 18 years old to register");  // Display a message to the user
+    }
+});
