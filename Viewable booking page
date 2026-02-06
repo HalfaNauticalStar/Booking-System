@@ -1,0 +1,164 @@
+# Viewable booking page
+
+<?php
+require_once __DIR__ . "/../PHP_scripts/verify_check.php";
+
+require_once __DIR__ . "/../PHP_scripts/db_connection.php";
+$conn = get_database_connection();
+/*get future slots (today onwards)*/
+
+$slots=[];
+
+$slotsStmt = $conn->prepare("
+SELECT visitDateID, visitDate, startTime, endTime, capacity 
+FROM visitdate 
+WHERE visitDate >= CURDATE()
+ORDER BY visitDate, startTime");
+/* Links to SQL database table called visitdate */
+
+$slotsStmt->execute();
+$slotsRes = $slotsStmt->get_result();
+while ($row = $slotsRes->fetch_assoc()) {
+    $slots[] = $row;
+}
+$slotsStmt->close();
+
+/* Ticket Types*/
+$types = [];
+$typesStmt = $conn->prepare("SELECT ticketTypeID, ticketTypeName, ticketPrice, ageMin, ageMax FROM tickettype ORDER BY ticketPrice ASC");
+
+$typesStmt->execute();
+$typesRes = $typesStmt->get_result();
+while($row = $typesRes->fetch_assoc()){
+    $types[] = $row;
+}
+$typesStmt->close();
+
+/*Flash Message*/ 
+$msg = $_SESSION['flash_msg']?? null;
+$msg_type = $_SESSION['flash_type']?? null;
+unset($_SESSION['flash_msg'], $_SESSION['flash_type']);
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--SHEET LINKS-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="hero.css">
+    <link rel="stylesheet" href="temp_navv.css">
+    <link rel="stylesheet" href="booking_style.css">
+    <link rel="stylesheet" href="auto_carousel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Ridget Zoo Adventures</title>
+</head>
+
+<body>
+    <nav>
+        <!--TOP ROW-->
+        <div class="top_row">
+ 
+            <!--HAMBURGER ICON-->
+            <div class = "hamburger">
+                <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+                <i class="fa fa-bars"></i></a>
+                <span></span>
+                <span></span>
+                <span></span>
+               
+            </div>
+ 
+            <!--COMPANY NAME-->
+            <div class = "nav_left">
+                <img src="/Images/PENGUIN_LOGO.svg" viewBox="0 0 24 24">
+                    <path d="M12 2L2 12h3v8h5v-6h4v6h5v-8h3L12 2z"/>
+            </div>
+        </div>  
+ 
+           <!--BOTTOM ROW-->
+            <div class = "bottom_row">
+                <!--LOGIN BUTTON-->
+                <div class = "nav_right">
+                    <a href="../PHP_scripts/html_zoo.html">Home</a>
+                </div>
+ 
+                <!--BOTTOM ROW BUTTONS-->
+                <ul class="navbar">
+                    <li><a href="/PHP_scripts/more_information.php">About Us</a></li>
+                    <li><a href="Find us.html">Find Us</a></li>
+                    <li><a href="/PHP_scripts/more_information.php">Hotel</a></li>
+                </ul>
+            </div>
+    </nav>
+
+    <!--HAMBURGER-->
+     <ul class = "hamburger_menu">
+        <li><a href ="../PHP_scripts/screen_reader_page.php">Accessibility</a></li>
+        <li><a href ="../PHP_scripts/policies_page.php">Policies</li></a></li>
+        <li><a href="../PHP_scripts/faq_page.PHP">FAQ's</a></li>
+    </ul>
+
+    <!-- RIGHT: BOOKING FORM -->
+    <div class="ticket_section">
+        <form id="ticket_form">
+        <h2>Book your Tickets Here</h2>
+
+        <input type="text" id="first_name" placeholder="First Name" required><br>
+        <input type="text" id="surname" placeholder="Surname" required><br><br>
+
+        <label for="visitDateID">Visit slot</label>
+        <select name="visitDateID" id="visitDateID" required>
+            <option value="">>> Select a date/time <<</option>
+            
+
+            <?php foreach ($slots as $s): ?>
+                <option value="<?= (int)$s['visitDateID'] ?>">
+                    <?= htmlspecialchars($s['visitDate']) ?>
+                    (<?= htmlspecialchars(substr($s['startTime'], 0, 5)) ?>
+                    - <?= htmlspecialchars(substr($s['endTime'], 0, 5)) ?>)
+                    — Capacity: <?= (int)$s['capacity'] ?>
+
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <br></br>
+        <div class="ticket-grid">
+
+        <?php foreach ($types as $t): ?>
+            <div>
+                <div class="ticket-box">
+                <div class="ticket-name"><?= htmlspecialchars(string: $t['ticketTypeName']) ?></div>
+                <div class="ticket-meta">
+                    <span class="price">£<?= number_format(num: (float)$t['ticketPrice'], decimals: 2) ?></span>
+                    <span class="age">Ages <?= (int)$t['ageMin'] ?>–<?= (int)$t['ageMax'] ?></span>
+                </div>
+                </div>
+            </div>
+
+            <div>
+                <label style="margin:0 0 6px;">Qty</label>
+                <input
+                    type="number"
+                    name="qty[<?= (int)$t['ticketTypeID'] ?>]"
+                    min="0"
+                    max="50"
+                    value="0"
+                >
+            </div>
+        <?php endforeach; ?>
+
+        <div class="button_box">
+        <a href="../PHP_scripts/create_ticket_booking.php" class="submit_button">Book Ticket</a>
+        </div>
+    </div>
+
+    <script src="/JavaScript/hamburger.js"></script>
+    <script src="../JavaScript/booking_js.js"></script>
+    <script src="/JavaScript/global_accessibility.js"></script>
+    <script src="/JavaScript/accessibility_toggles.js"></script>
+
+
+</body>
+</html>
