@@ -11,20 +11,6 @@ contrastToggle.addEventListener("click", function () {
     this.setAttribute("aria-pressed", isHighContrast);
 });
 
-Global High Contrast:
-
-const savedContrast = localStorage.getItem("highContrastEnabled");
-
-if (savedContrast === "true") {
-    document.body.classList.add("high-contrast");
-
-    // If the toggle button exists on this page, update its state
-    const btn = document.getElementById("contrastToggle");
-    if (btn) {
-        btn.setAttribute("aria-pressed", "true");
-    }
-}
-
 Large font:
 
 const fontToggle = document.getElementById("fontChanger");
@@ -37,22 +23,6 @@ fontToggle.addEventListener("click", function () {
 
     this.setAttribute("aria-pressed", isLargeFont);
 });
-
-Global Large Font:
-
-// Check saved preference for large font
-const savedLargeFont = localStorage.getItem("largeFontEnabled");
-
-if (savedLargeFont === "true") {
-    document.body.classList.add("large-font");
-
-    // If the toggle button exists on this page, update its state
-    const btn = document.getElementById("fontChanger");
-    if (btn) {
-        btn.setAttribute("aria-pressed", "true");
-    }
-}
-
 
 Hamburger Menu:
 
